@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedMate</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;--bg4:#252d3d;--border:#2a3347;--border2:#3a4660;--text:#e8eaf0;--text2:#8892a4;--text3:#4a5568;--green:#00d084;--gdim:#003d26;--gbg:#001a10;--blue:#4a9eff;--bdim:#0d2a4a;--red:#ff5c5c;--rdim:#3d0d0d;--amber:#ffb347;--adim:#3d2800;--purple:#a78bfa;--pdim:#2d1f4a;--cyan:#22d3ee;--radius:6px;--rlg:10px;}
+body{background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;font-family:'IBM Plex Sans',sans-serif;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;height:48px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.lm{width:26px;height:26px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#000;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.nav{display:flex;gap:1px}
+.nb{padding:5px 12px;border-radius:var(--radius);border:none;background:transparent;font-size:12px;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.nb:hover,.nb.active{background:var(--bg3);color:var(--text);font-weight:500}
+.acts{display:flex;gap:6px}
+.btn{padding:6px 14px;border-radius:var(--radius);border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit}
+.bp{background:var(--green);color:#000}.bp:hover{background:#00b870}
+.bs{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}.bs:hover{color:var(--text)}
+.layout{display:grid;grid-template-columns:210px 1fr 250px 270px;height:calc(100vh - 48px);overflow:hidden;gap:1px;background:var(--border)}
+.col{overflow-y:auto;background:var(--bg);padding:12px}
+.col::-webkit-scrollbar{width:3px}.col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.sh{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.bd{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sec{margin-bottom:12px}
+.fld{margin-bottom:7px}
+.lbl{font-size:10px;color:var(--text3);margin-bottom:2px;font-weight:500}
+.inp{width:100%;height:28px;padding:0 7px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);font-family:inherit;font-size:11px;transition:border .15s}
+.inp:focus{outline:none;border-color:var(--green)}
+.inp::placeholder{color:var(--text3)}
+.inp[readonly]{background:var(--bg2);color:var(--cyan);cursor:default;font-family:'IBM Plex Mono',monospace}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+select.inp{cursor:pointer}
+.radios{display:flex;gap:10px;margin-top:2px}
+.rl{display:flex;align-items:center;gap:3px;font-size:11px;cursor:pointer;color:var(--text2)}
+.rl input{accent-color:var(--green)}
+.cks{display:flex;flex-direction:column;gap:3px}
+.ck{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;color:var(--text2);padding:2px 3px;border-radius:3px;transition:all .1s}
+.ck:hover{background:var(--bg3);color:var(--text)}
+.ck input{accent-color:var(--green);width:12px;height:12px}
+.dv{border:none;border-top:1px solid var(--border);margin:10px 0}
+.egrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px}
+.ec{border:1px solid var(--border);border-radius:var(--rlg);padding:9px;background:var(--bg2)}
+.et{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.er{display:flex;align-items:center;gap:3px;margin-bottom:3px}
+.el{font-size:10px;color:var(--text2);flex:1;white-space:nowrap}
+.ei{width:58px;height:22px;padding:0 4px;border:1px solid var(--border);border-radius:3px;background:var(--bg3);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:right;transition:border .15s,color .15s}
+.ei:focus{outline:none;border-color:var(--green)}
+.ei[readonly]{background:var(--bg);color:var(--cyan);cursor:default;border-color:rgba(34,211,238,.4)!important;font-weight:600}
+.ei.ok{border-color:var(--green)!important;color:var(--green)!important}
+.ei.warn{border-color:var(--amber)!important;color:var(--amber)!important}
+.ei.crit{border-color:var(--red)!important;color:var(--red)!important}
+.esel{height:22px;padding:0 3px;border:1px solid var(--border);border-radius:3px;background:var(--bg3);color:var(--text);font-family:inherit;font-size:10px;width:100%}
+.esel:focus{outline:none;border-color:var(--green)}
+textarea.inp{height:auto;padding:7px;resize:vertical;line-height:1.5}
+.rb{margin-bottom:10px}
+.rbt{font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.rtags{display:flex;flex-wrap:wrap;gap:3px}
+.rtag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.rt-e{background:var(--bg3);color:var(--text3);border:1px dashed var(--border2)}
+.rt-ok{background:var(--gbg);color:var(--green);border:1px solid var(--gdim)}
+.rt-w{background:var(--adim);color:var(--amber);border:1px solid #5a3a00}
+.rt-a{background:var(--rdim);color:var(--red);border:1px solid #5a1414}
+.rt-i{background:var(--bdim);color:var(--blue);border:1px solid #0a2040}
+.rt-c{background:var(--pdim);color:var(--purple);border:1px solid #3d2a6a}
+.rtxt{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.85;color:var(--text);min-height:240px;white-space:pre-wrap;word-break:break-word}
+.cbtn{width:100%;height:27px;margin-top:5px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.cbtn:hover{background:var(--bg4);color:var(--text)}
+.cbtn.ok{border-color:var(--green)!important;color:var(--green)!important}
+.gbtn{width:100%;height:30px;background:var(--green);color:#000;border:none;border-radius:var(--radius);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:5px}
+.gbtn:hover{background:#00b870}
+#editor{min-height:150px;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);font-size:11px;line-height:1.7;outline:none}
+#editor:focus{border-color:var(--green)}
+.tbtn{width:24px;height:24px;border:1px solid var(--border);border-radius:3px;background:var(--bg3);color:var(--text2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:10px;margin-right:2px;margin-bottom:4px}
+.tbtn:hover{background:var(--bg4);color:var(--text)}
+.calc-lbl{font-size:8px;background:var(--cyan);color:#000;padding:1px 4px;border-radius:2px;font-weight:700;margin-left:3px}
+.toast{position:fixed;bottom:16px;right:16px;background:var(--bg4);border:1px solid var(--border2);color:var(--text);padding:7px 14px;border-radius:var(--radius);font-size:11px;opacity:0;transform:translateY(5px);transition:all .2s;z-index:9999;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.s{border-color:var(--green);color:var(--green)}
+footer{background:var(--bg2);border-top:1px solid var(--border);text-align:center;padding:7px;font-size:10px;color:var(--text3)}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:18px">
+    <div class="logo"><div class="lm">M+</div>MedMate</div>
+    <div class="nav">
+      <button class="nb active">• Consulta</button>
+      <button class="nb">• Prescrição</button>
+      <button class="nb">• Exames</button>
+      <button class="nb">• Atestados</button>
+      <button class="nb">• Laudos</button>
+      <button class="nb">• Orientações</button>
+    </div>
+  </div>
+  <div class="acts">
+    <button class="btn bs" onclick="clearAll()">Nova consulta</button>
+    <button class="btn bp" onclick="toast('Salvo!',true)">Salvar</button>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- COL 1 -->
+<div class="col">
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--blue)"></span>Identificação</div>
+    <div class="fld"><div class="lbl">Nome</div><input class="inp" id="nome" type="text" placeholder="Nome do paciente" oninput="gen()"></div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Idade</div><input class="inp" id="idade" type="number" placeholder="anos" min="0" max="120" oninput="calcTudo();gen()"></div>
+      <div class="fld"><div class="lbl">Raça</div>
+        <select class="inp" id="raca" onchange="gen()"><option value="">—</option><option>Branco</option><option>Pardo</option><option>Preto</option><option>Amarelo</option><option>Indígena</option></select>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Gênero</div>
+      <div class="radios">
+        <label class="rl"><input type="radio" name="sexo" value="Masculino" onchange="calcTudo();gen()"> Masc.</label>
+        <label class="rl"><input type="radio" name="sexo" value="Feminino" onchange="calcTudo();gen()"> Fem.</label>
+        <label class="rl"><input type="radio" name="sexo" value="Outro" onchange="gen()"> Outro</label>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Data da consulta</div><input class="inp" id="dt-c" type="date" onchange="gen()"></div>
+  </div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--red)"></span>Lista de Problemas</div>
+    <div class="cks">
+      <label class="ck"><input type="checkbox" id="p-has" onchange="calcRCV();gen()"> HAS</label>
+      <label class="ck"><input type="checkbox" id="p-dm" onchange="calcRCV();gen()"> DM2</label>
+      <label class="ck"><input type="checkbox" id="p-tab" onchange="calcRCV();gen()"> Tabagismo</label>
+      <label class="ck"><input type="checkbox" id="p-ob" onchange="gen()"> Obesidade</label>
+      <label class="ck"><input type="checkbox" id="p-dhgna" onchange="gen()"> DHGNA</label>
+      <label class="ck"><input type="checkbox" id="p-drc" onchange="gen()"> DRC</label>
+      <label class="ck"><input type="checkbox" id="p-hipot" onchange="gen()"> Hipotireoidismo</label>
+      <label class="ck"><input type="checkbox" id="p-dislipi" onchange="gen()"> Dislipidemia</label>
+      <label class="ck"><input type="checkbox" id="p-ansi" onchange="gen()"> Ansiedade / Depressão</label>
+      <label class="ck"><input type="checkbox" id="p-asma" onchange="gen()"> Asma / DPOC</label>
+      <label class="ck"><input type="checkbox" id="p-icc" onchange="gen()"> ICC</label>
+      <label class="ck"><input type="checkbox" id="p-fa" onchange="gen()"> Fibrilação Atrial</label>
+      <label class="ck"><input type="checkbox" id="p-gota" onchange="gen()"> Gota</label>
+    </div>
+    <div class="fld" style="margin-top:7px"><div class="lbl">Outros</div><input class="inp" id="p-out" type="text" placeholder="ICC (G5A2), Gota..." oninput="gen()"></div>
+  </div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--amber)"></span>Exame Físico</div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">PAS (mmHg)</div><input class="inp" id="pas" type="number" placeholder="120" oninput="calcRCV();gen()"></div>
+      <div class="fld"><div class="lbl">PAD (mmHg)</div><input class="inp" id="pad" type="number" placeholder="80" oninput="gen()"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Peso (kg)</div><input class="inp" id="peso" type="number" placeholder="70" oninput="calcIMC();gen()"></div>
+      <div class="fld"><div class="lbl">Altura (cm)</div><input class="inp" id="altura" type="number" placeholder="170" oninput="calcIMC();gen()"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">IMC <span class="calc-lbl">AUTO</span></div><input class="inp" id="imc" type="text" placeholder="—" readonly></div>
+      <div class="fld"><div class="lbl">C. Abd. (cm)</div><input class="inp" id="ca-abd" type="number" placeholder="—" oninput="gen()"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">FC (bpm)</div><input class="inp" id="fc" type="number" placeholder="70" oninput="gen()"></div>
+      <div class="fld"><div class="lbl">SpO2 (%)</div><input class="inp" id="spo2" type="number" placeholder="98" oninput="gen()"></div>
+    </div>
+    <div class="fld"><div class="lbl">Temperatura (°C)</div><input class="inp" id="temp" type="number" placeholder="36.5" step="0.1" oninput="gen()"></div>
+  </div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--green)"></span>Prevenções</div>
+    <div class="cks">
+      <label class="ck"><input type="checkbox" id="pv-mamo" onchange="gen()"> Mamografia em dia</label>
+      <label class="ck"><input type="checkbox" id="pv-colpo" onchange="gen()"> Colposcopia em dia</label>
+      <label class="ck"><input type="checkbox" id="pv-colono" onchange="gen()"> Colonoscopia em dia</label>
+      <label class="ck"><input type="checkbox" id="pv-flu" onchange="gen()"> Influenza (vacinado)</label>
+      <label class="ck"><input type="checkbox" id="pv-covid" onchange="gen()"> COVID-19 (vacinado)</label>
+      <label class="ck"><input type="checkbox" id="pv-psa" onchange="gen()"> PSA solicitado</label>
+      <label class="ck"><input type="checkbox" id="pv-densi" onchange="gen()"> Densitometria em dia</label>
+    </div>
+  </div>
+</div>
+
+<!-- COL 2: EXAMES -->
+<div class="col">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div class="sh" style="margin-bottom:0;border:none;padding-bottom:0"><span class="bd" style="background:var(--purple)"></span>Exames Complementares</div>
+    <input class="inp" id="dt-ex" type="date" style="width:auto;height:24px;font-size:10px" onchange="gen()">
+  </div>
+  <div class="egrid">
+
+    <div class="ec">
+      <div class="et">Lipidograma</div>
+      <div class="er"><span class="el">CT</span><input class="ei" id="ct" type="number" placeholder="—" oninput="fa(this,200,240);calcRCV();gen()"></div>
+      <div class="er"><span class="el">HDL</span><input class="ei" id="hdl" type="number" placeholder="—" oninput="fl(this,40,35);calcRCV();gen()"></div>
+      <div class="er"><span class="el">LDL</span><input class="ei" id="ldl" type="number" placeholder="—" oninput="fa(this,130,160);gen()"></div>
+      <div class="er"><span class="el">Triglicérides</span><input class="ei" id="trig" type="number" placeholder="—" oninput="fa(this,150,200);gen()"></div>
+      <div class="er"><span class="el">Não-HDL</span><input class="ei" id="naohl" type="number" placeholder="—" oninput="gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Perfil Renal</div>
+      <div class="er"><span class="el">Creatinina</span><input class="ei" id="cr" type="number" step="0.1" placeholder="—" oninput="fa(this,1.2,1.5);calcTFG();gen()"></div>
+      <div class="er"><span class="el">Ureia</span><input class="ei" id="ur" type="number" placeholder="—" oninput="fa(this,40,60);gen()"></div>
+      <div class="er"><span class="el">Ác. Úrico</span><input class="ei" id="au" type="number" step="0.1" placeholder="—" oninput="fa(this,6,7);gen()"></div>
+      <div class="er"><span class="el">TFG <span class="calc-lbl">AUTO</span></span><input class="ei" id="tfg-disp" type="text" placeholder="—" readonly></div>
+      <div class="er"><span class="el">R. A/C (mg/g)</span><input class="ei" id="rac" type="number" placeholder="—" oninput="fa(this,30,300);gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Perfil Hepático</div>
+      <div class="er"><span class="el">AST/TGO</span><input class="ei" id="tgo" type="number" placeholder="—" oninput="fa(this,40,80);calcFIB4();gen()"></div>
+      <div class="er"><span class="el">ALT/TGP</span><input class="ei" id="tgp" type="number" placeholder="—" oninput="fa(this,40,80);calcFIB4();gen()"></div>
+      <div class="er"><span class="el">GamaGT</span><input class="ei" id="ggt" type="number" placeholder="—" oninput="fa(this,60,120);gen()"></div>
+      <div class="er"><span class="el">Fosf. Alc.</span><input class="ei" id="fal" type="number" placeholder="—" oninput="gen()"></div>
+      <div class="er"><span class="el">Bilirrubina T.</span><input class="ei" id="bili" type="number" step="0.1" placeholder="—" oninput="gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Perfil Glicêmico</div>
+      <div class="er"><span class="el">Glicemia J.</span><input class="ei" id="gj" type="number" placeholder="—" oninput="fa(this,100,126);gen()"></div>
+      <div class="er"><span class="el">HbA1c (%)</span><input class="ei" id="hba1c" type="number" step="0.1" placeholder="—" oninput="fa(this,5.7,6.5);gen()"></div>
+      <div class="er"><span class="el">Insulina (µUI)</span><input class="ei" id="ins" type="number" placeholder="—" oninput="gen()"></div>
+      <div class="er"><span class="el">HOMA-IR</span><input class="ei" id="homa" type="number" step="0.1" placeholder="—" oninput="fa(this,2.7,4.0);gen()"></div>
+      <div class="er"><span class="el">Pept. C</span><input class="ei" id="pepc" type="number" step="0.1" placeholder="—" oninput="gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Eletrólitos</div>
+      <div class="er"><span class="el">Potássio</span><input class="ei" id="k" type="number" step="0.1" placeholder="—" oninput="ff(this,3.5,5.0);gen()"></div>
+      <div class="er"><span class="el">Sódio</span><input class="ei" id="na2" type="number" placeholder="—" oninput="ff(this,136,145);gen()"></div>
+      <div class="er"><span class="el">Cálcio total</span><input class="ei" id="ca2" type="number" step="0.1" placeholder="—" oninput="ff(this,8.6,10.2);gen()"></div>
+      <div class="er"><span class="el">Magnésio</span><input class="ei" id="mg" type="number" step="0.1" placeholder="—" oninput="ff(this,1.6,2.6);gen()"></div>
+      <div class="er"><span class="el">Fósforo</span><input class="ei" id="fosforo" type="number" step="0.1" placeholder="—" oninput="ff(this,2.5,4.5);gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Vitaminas</div>
+      <div class="er"><span class="el">Vit. D (ng/mL)</span><input class="ei" id="vitd" type="number" step="0.1" placeholder="—" oninput="flvitd(this);gen()"></div>
+      <div class="er"><span class="el">Vit. B12 (pg/mL)</span><input class="ei" id="b12" type="number" placeholder="—" oninput="fl(this,200,140);gen()"></div>
+      <div class="er"><span class="el">Folato (ng/mL)</span><input class="ei" id="folato" type="number" placeholder="—" oninput="fl(this,3,2);gen()"></div>
+      <div class="er"><span class="el">Zinco (µg/dL)</span><input class="ei" id="zinco" type="number" placeholder="—" oninput="ff(this,70,120);gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Hemograma</div>
+      <div class="er"><span class="el">Hb (g/dL)</span><input class="ei" id="hb" type="number" step="0.1" placeholder="—" oninput="flhb(this);gen()"></div>
+      <div class="er"><span class="el">Hematócrito (%)</span><input class="ei" id="ht" type="number" step="0.1" placeholder="—" oninput="gen()"></div>
+      <div class="er"><span class="el">VCM (fL)</span><input class="ei" id="vcm" type="number" placeholder="—" oninput="ff(this,80,100);gen()"></div>
+      <div class="er"><span class="el">Leucócitos</span><input class="ei" id="leuco" type="number" placeholder="—" oninput="ff(this,4000,11000);gen()"></div>
+      <div class="er"><span class="el">Plaquetas (mil)</span><input class="ei" id="plaq" type="number" placeholder="—" oninput="ff(this,150,400);calcFIB4();gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Tireoide</div>
+      <div class="er"><span class="el">TSH (µUI/mL)</span><input class="ei" id="tsh" type="number" step="0.01" placeholder="—" oninput="ff(this,0.4,4.0);gen()"></div>
+      <div class="er"><span class="el">T4 Livre (ng/dL)</span><input class="ei" id="t4l" type="number" step="0.01" placeholder="—" oninput="ff(this,0.8,1.9);gen()"></div>
+      <div class="er"><span class="el">T3 Livre (pg/mL)</span><input class="ei" id="t3l" type="number" step="0.01" placeholder="—" oninput="ff(this,2.3,4.2);gen()"></div>
+      <div class="er"><span class="el">Anti-TPO (UI/mL)</span><input class="ei" id="antitpo" type="number" placeholder="—" oninput="fa(this,35,100);gen()"></div>
+      <div class="er"><span class="el">Anti-TG (UI/mL)</span><input class="ei" id="antitig" type="number" placeholder="—" oninput="fa(this,115,200);gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Cinética do Ferro</div>
+      <div class="er"><span class="el">Ferritina (ng/mL)</span><input class="ei" id="ferritina" type="number" placeholder="—" oninput="flferr(this);gen()"></div>
+      <div class="er"><span class="el">Ferro sérico</span><input class="ei" id="ferro" type="number" placeholder="—" oninput="ff(this,60,170);gen()"></div>
+      <div class="er"><span class="el">Transferrina</span><input class="ei" id="transf" type="number" placeholder="—" oninput="gen()"></div>
+      <div class="er"><span class="el">Saturação (%)</span><input class="ei" id="sat" type="number" placeholder="—" oninput="fl(this,20,15);gen()"></div>
+      <div class="er"><span class="el">CTLF (µg/dL)</span><input class="ei" id="ctlf" type="number" placeholder="—" oninput="gen()"></div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Inflamatórios</div>
+      <div class="er"><span class="el">PCR (mg/L)</span><input class="ei" id="pcr" type="number" step="0.1" placeholder="—" oninput="fa(this,5,10);gen()"></div>
+      <div class="er"><span class="el">VHS (mm/h)</span><input class="ei" id="vhs" type="number" placeholder="—" oninput="fa(this,20,40);gen()"></div>
+      <div class="er"><span class="el">EAS</span><select class="esel" id="eas" onchange="gen()"><option value="">—</option><option>Normal</option><option>Alterado</option></select></div>
+      <div class="er"><span class="el">PSOF</span><select class="esel" id="psof" onchange="gen()"><option value="">—</option><option>Negativo</option><option>Positivo</option></select></div>
+      <div class="er"><span class="el">PSA (ng/mL)</span><input class="ei" id="psa" type="number" step="0.1" placeholder="—" oninput="fa(this,4,10);gen()"></div>
+    </div>
+
+    <div class="ec" style="grid-column:span 2">
+      <div class="et">Cálculos Automáticos <span class="calc-lbl">CALCULADO AUTOMATICAMENTE</span></div>
+      <div class="er">
+        <span class="el" style="color:var(--cyan);font-weight:600">FIB-4</span>
+        <input class="ei" id="fib4-val" type="text" placeholder="—" readonly style="width:60px">
+        <span id="fib4-txt" style="font-size:10px;color:var(--text2);margin-left:5px;flex:1"></span>
+      </div>
+      <div class="er">
+        <span class="el" style="color:var(--cyan);font-weight:600">TFG CKD-EPI</span>
+        <input class="ei" id="tfg-val" type="text" placeholder="—" readonly style="width:80px">
+        <span id="tfg-txt" style="font-size:10px;color:var(--text2);margin-left:5px;flex:1"></span>
+      </div>
+      <div class="er">
+        <span class="el" style="color:var(--cyan);font-weight:600">RCV Framingham</span>
+        <input class="ei" id="rcv-val" type="text" placeholder="—" readonly style="width:60px">
+        <span id="rcv-txt" style="font-size:10px;color:var(--text2);margin-left:5px;flex:1"></span>
+      </div>
+      <div style="margin-top:6px;font-size:9px;color:var(--text3);line-height:1.6">
+        Refs: FIB-4 = (Idade×AST)/(Plaq×√ALT) — EASL/MS-DHGNA 2023 | TFG = CKD-EPI 2021 (KDIGO 2022) | RCV = Framingham/SBC 2022
+      </div>
+    </div>
+
+    <div class="ec">
+      <div class="et">Outros / Imagens</div>
+      <textarea class="inp" id="out-ex" rows="7" placeholder="ECG, USG, Eco, Densito, RX..." oninput="gen()"></textarea>
+    </div>
+
+  </div>
+</div>
+
+<!-- COL 3: TAGS + SOAP + ANTECEDENTES -->
+<div class="col">
+  <div class="sh" style="margin-bottom:10px"><span class="bd" style="background:var(--green)"></span>Resumo Clínico</div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--blue);width:5px;height:5px"></span>Paciente</div><div class="rtags" id="rt-pac"><span class="rtag rt-e">—</span></div></div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--amber);width:5px;height:5px"></span>Vitais</div><div class="rtags" id="rt-vit"><span class="rtag rt-e">—</span></div></div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--red);width:5px;height:5px"></span>Problemas ativos</div><div class="rtags" id="rt-prob"><span class="rtag rt-e">—</span></div></div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--purple);width:5px;height:5px"></span>Exames alterados</div><div class="rtags" id="rt-ex"><span class="rtag rt-e">—</span></div></div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--cyan);width:5px;height:5px"></span>Cálculos (FIB-4/TFG/RCV)</div><div class="rtags" id="rt-calc"><span class="rtag rt-e">—</span></div></div>
+  <div class="rb"><div class="rbt"><span class="bd" style="background:var(--green);width:5px;height:5px"></span>Prevenções em dia</div><div class="rtags" id="rt-prev"><span class="rtag rt-e">—</span></div></div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--amber)"></span>SOAP</div>
+    <div class="fld"><div class="lbl">S — Subjetivo</div><textarea class="inp" id="ss" rows="3" placeholder="Queixa principal, HDA..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">O — Objetivo</div><textarea class="inp" id="so" rows="2" placeholder="Exame físico complementar..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">A — Avaliação / Hipótese</div><textarea class="inp" id="sa" rows="2" placeholder="Diagnósticos, CID..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">P — Plano</div><textarea class="inp" id="sp" rows="3" placeholder="Condutas, encaminhamentos, retorno..." oninput="gen()"></textarea></div>
+  </div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--cyan)"></span>Antecedentes</div>
+    <div class="fld"><div class="lbl">Pessoais</div><textarea class="inp" id="ant-p" rows="2" placeholder="Cirurgias, internações, alergias..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">Familiares</div><textarea class="inp" id="ant-f" rows="2" placeholder="Cardiopatia, CA, DM familiar..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">Hábitos de vida</div><textarea class="inp" id="ant-h" rows="2" placeholder="AF, dieta, etilismo, drogas..." oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">Medicamentos em uso</div><textarea class="inp" id="meds" rows="3" placeholder="Nome · dose · frequência" oninput="gen()"></textarea></div>
+    <div class="fld"><div class="lbl">Alergias</div><input class="inp" id="alergia" type="text" placeholder="NKDA / Penicilina / AINH..." oninput="gen()"></div>
+    <div class="fld"><div class="lbl">MUC / Morbidades</div><textarea class="inp" id="muc" rows="2" placeholder="Condições crônicas documentadas..." oninput="gen()"></textarea></div>
+  </div>
+</div>
+
+<!-- COL 4: RESUMO PARA COPIAR -->
+<div class="col">
+  <div class="sh" style="margin-bottom:8px"><span class="bd" style="background:var(--cyan)"></span>Resumo para Copiar — eSUS PEC</div>
+  <div id="rtxt" class="rtxt" style="color:var(--text3)">Preencha os dados para gerar o resumo automaticamente...</div>
+  <button class="cbtn" id="btn-cp" onclick="copiarResumo()">📋 Copiar resumo</button>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--purple)"></span>Editor livre</div>
+    <div style="margin-bottom:4px">
+      <button class="tbtn" onclick="document.execCommand('bold')"><b>B</b></button>
+      <button class="tbtn" onclick="document.execCommand('italic')"><i>I</i></button>
+      <button class="tbtn" onclick="document.execCommand('underline')"><u>U</u></button>
+      <button class="tbtn" onclick="document.execCommand('insertUnorderedList')">•</button>
+      <button class="tbtn" onclick="document.execCommand('insertOrderedList')">1.</button>
+    </div>
+    <div id="editor" contenteditable="true"><span style="color:var(--text3);font-size:11px">Clique para escrever livremente...</span></div>
+    <button class="gbtn" onclick="gerarProntuario()">Gerar prontuário completo</button>
+    <button class="cbtn" onclick="copiarEditor()" style="margin-top:4px">Copiar prontuário</button>
+  </div>
+  <div class="dv"></div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--amber)"></span>Prescrição</div>
+    <textarea class="inp" id="presc" rows="6" placeholder="1. Metformina 850mg — 1cp 2x/dia&#10;2. Losartana 50mg — 1cp/dia (manhã)&#10;3. AAS 100mg — 1cp/dia"></textarea>
+  </div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--green)"></span>Exames a Solicitar</div>
+    <textarea class="inp" id="ex-sol" rows="4" placeholder="HbA1c, lipidograma, TSH, hemograma..."></textarea>
+  </div>
+  <div class="sec">
+    <div class="sh"><span class="bd" style="background:var(--blue)"></span>Orientações ao Paciente</div>
+    <textarea class="inp" id="orient" rows="4" placeholder="Dieta, atividade física, retorno em..."></textarea>
+  </div>
+</div>
+</div>
+
+<footer>© 2026 MedMate — MFC | Refs: MS/PCDT/SBC/SBD/KDIGO/EASL — FIB-4 · CKD-EPI · Framingham</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function vf(id){return parseFloat(v(id))||0;}
+function chk(id){const e=document.getElementById(id);return e&&e.checked;}
+function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(ok?' s':'');setTimeout(()=>t.className='toast',2400);}
+function clearAll(){
+  if(!confirm('Limpar todos os dados?'))return;
+  document.querySelectorAll('input[type=text],input[type=number],input[type=date],textarea').forEach(e=>e.value='');
+  document.querySelectorAll('input[type=checkbox],input[type=radio]').forEach(e=>e.checked=false);
+  document.querySelectorAll('select').forEach(e=>e.selectedIndex=0);
+  document.querySelectorAll('.ei').forEach(e=>e.classList.remove('ok','warn','crit'));
+  document.getElementById('editor').innerHTML='<span style="color:var(--text3);font-size:11px">Clique para escrever...</span>';
+  document.getElementById('dt-c').value=new Date().toISOString().split('T')[0];
+  ['fib4-val','fib4-txt','tfg-disp','tfg-val','tfg-txt','rcv-val','rcv-txt'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent?e.textContent='':e.value='';});
+  gen();toast('Pronto para nova consulta!',true);
+}
+
+// Flags por valores ref. MS/PCDT/SBC
+function fa(el,w,c){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;if(x>=c)el.classList.add('crit');else if(x>=w)el.classList.add('warn');else el.classList.add('ok');}
+function fl(el,w,c){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;if(x<c)el.classList.add('crit');else if(x<w)el.classList.add('warn');else el.classList.add('ok');}
+function ff(el,lo,hi){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;if(x<lo||x>hi)el.classList.add('warn');else el.classList.add('ok');}
+// Vit D — MS Nota Técnica: <20 deficiência, 20-30 insuficiência, >=30 suficiência
+function flvitd(el){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;if(x<20)el.classList.add('crit');else if(x<30)el.classList.add('warn');else el.classList.add('ok');}
+// Hb — OMS/MS: homem <13, mulher <12 (anemia); <11/<10 anemia grave
+function flhb(el){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;const fem=document.querySelector('input[name=sexo]:checked')?.value==='Feminino';const lim=fem?12:13;const limC=fem?10:11;if(x<limC)el.classList.add('crit');else if(x<lim)el.classList.add('warn');else el.classList.add('ok');}
+// Ferritina — MS/SBH: mulher <13, homem <30
+function flferr(el){const x=parseFloat(el.value);el.classList.remove('ok','warn','crit');if(!el.value)return;const fem=document.querySelector('input[name=sexo]:checked')?.value==='Feminino';const lim=fem?13:30;if(x<lim)el.classList.add('crit');else el.classList.add('ok');}
+
+// IMC — OMS
+function calcIMC(){
+  const p=vf('peso'),a=vf('altura');
+  if(p&&a){const x=p/((a/100)**2);let c=x<18.5?'Baixo peso':x<25?'Eutrófico':x<30?'Sobrepeso':x<35?'Obesidade I':x<40?'Obesidade II':'Obesidade III';document.getElementById('imc').value=x.toFixed(1)+' — '+c;}
+  else document.getElementById('imc').value='';
+}
+
+// TFG — CKD-EPI 2021 sem raça (KDIGO 2022 / MS-DRC 2022)
+function calcTFG(){
+  const cr=vf('cr'),idade=vf('idade');
+  const sexoEl=document.querySelector('input[name=sexo]:checked');
+  const fem=sexoEl?.value==='Feminino';
+  if(!cr||!idade){['tfg-disp','tfg-val'].forEach(id=>document.getElementById(id).value='');document.getElementById('tfg-txt').textContent='';gen();return;}
+  const k=fem?0.7:0.9, alpha=fem?-0.241:-0.302;
+  const crk=cr/k;
+  let tfg=142*Math.pow(crk<=1?crk:crk,-1.200*(crk>1?1:0)+alpha*(crk<=1?1:0))*Math.pow(0.9938,idade)*(fem?1.012:1.0);
+  if(crk<=1) tfg=142*Math.pow(crk,alpha)*Math.pow(0.9938,idade)*(fem?1.012:1.0);
+  else tfg=142*Math.pow(crk,-1.200)*Math.pow(0.9938,idade)*(fem?1.012:1.0);
+  tfg=Math.round(tfg*10)/10;
+  const est=tfg>=90?'G1 — Normal/Aumentada':tfg>=60?'G2 — Leve redução':tfg>=45?'G3a — Leve-Moderada':tfg>=30?'G3b — Moderada-Grave':tfg>=15?'G4 — Grave':'G5 — Falência renal';
+  const cor=tfg>=60?'var(--green)':tfg>=30?'var(--amber)':'var(--red)';
+  ['tfg-disp','tfg-val'].forEach(id=>document.getElementById(id).value=tfg+' mL/min');
+  const t=document.getElementById('tfg-txt');t.textContent=est;t.style.color=cor;
+  gen();
+}
+
+// FIB-4 — EASL 2023 / nota técnica MS-DHGNA
+// FIB-4 = (Idade × AST) / (Plaquetas(×10³) × √ALT)
+function calcFIB4(){
+  const idade=vf('idade'),ast=vf('tgo'),alt=vf('tgp'),plaq=vf('plaq');
+  if(!idade||!ast||!alt||!plaq){document.getElementById('fib4-val').value='';document.getElementById('fib4-txt').textContent='';gen();return;}
+  const f=(idade*ast)/(plaq*Math.sqrt(alt));
+  const fib4=Math.round(f*100)/100;
+  const interp=fib4<1.30?'Baixo risco (F0-F2)':fib4<=2.67?'Risco indeterminado':'Alto risco (F3-F4)';
+  const cor=fib4<1.30?'var(--green)':fib4<=2.67?'var(--amber)':'var(--red)';
+  const el=document.getElementById('fib4-val');el.value=fib4;
+  const t=document.getElementById('fib4-txt');t.textContent=interp;t.style.color=cor;
+  gen();
+}
+
+// RCV — Escore de Framingham adaptado (Diretriz SBC 2022 / MS-DCNT 2022)
+// Wilson PW et al. Circulation 1998 — modelo logarítmico
+function calcRCV(){
+  const idade=vf('idade'),pas=vf('pas'),ct=vf('ct'),hdl=vf('hdl');
+  const sexoEl=document.querySelector('input[name=sexo]:checked');
+  const fem=sexoEl?.value==='Feminino';
+  const tabag=chk('p-tab'),dm=chk('p-dm'),has=chk('p-has');
+  if(!idade||!pas||!ct||!hdl||!sexoEl||idade<30||idade>74){
+    document.getElementById('rcv-val').value='';document.getElementById('rcv-txt').textContent='';gen();return;
+  }
+  const lA=Math.log(idade),lCT=Math.log(ct),lHDL=Math.log(hdl),lPAS=Math.log(pas);
+  let score=0;
+  if(!fem){
+    let s=3.06117*lA+1.12370*lCT-0.93263*lHDL+(has?1.99881:1.93303)*lPAS+(tabag?0.65451:0)+(dm?0.57367:0)-23.9802;
+    score=1-Math.pow(0.9402,Math.exp(s));
+  }else{
+    let s=2.32888*lA+1.20904*lCT-0.70833*lHDL+(has?2.82263:2.76157)*lPAS+(tabag?0.52873:0)+(dm?0.69154:0)-26.1931;
+    score=1-Math.pow(0.9669,Math.exp(s));
+  }
+  const pct=Math.min(Math.max(Math.round(score*1000)/10,1),99);
+  const risco=pct<10?'Baixo (<10%)':pct<20?'Intermediário (10-20%)':'Alto (≥20%)';
+  const cor=pct<10?'var(--green)':pct<20?'var(--amber)':'var(--red)';
+  const el=document.getElementById('rcv-val');el.value=pct+'%';
+  const t=document.getElementById('rcv-txt');t.textContent=risco;t.style.color=cor;
+  gen();
+}
+
+function calcTudo(){calcIMC();calcTFG();calcFIB4();calcRCV();}
+
+function setTags(id,arr){const el=document.getElementById(id);if(!arr.length){el.innerHTML='<span class="rtag rt-e">—</span>';return;}el.innerHTML=arr.map(([t,c])=>`<span class="rtag ${c}">${t}</span>`).join('');}
+
+function gen(){
+  const nome=v('nome'),idade=v('idade'),imc=v('imc');
+  const sexEl=document.querySelector('input[name=sexo]:checked');
+  const sexo=sexEl?sexEl.value:'',raca=v('raca');
+
+  // Tags paciente
+  const tPac=[];
+  if(nome||idade){let s=(nome||'Paciente')+(idade?' · '+idade+' anos':'')+(sexo?' · '+sexo:'')+(raca?' · '+raca:'');tPac.push([s,'rt-i']);}
+  setTags('rt-pac',tPac);
+
+  // Tags vitais
+  const tVit=[];
+  const pas=v('pas'),pad=v('pad');
+  if(pas&&pad){const al=parseInt(pas)>=140||parseInt(pad)>=90;tVit.push([`PA ${pas}/${pad}`,al?'rt-a':'rt-ok']);}
+  if(imc){const iv=parseFloat(imc);const cat=(imc.split(' — ')[1]||'').trim();const cl=iv>=30?'rt-a':iv>=25?'rt-w':'rt-ok';tVit.push([`IMC ${iv.toFixed(1)} · ${cat}`,cl]);}
+  const ca=v('ca-abd');if(ca){const cV=parseFloat(ca);const caAl=(sexo==='Feminino'&&cV>=80)||(sexo!=='Feminino'&&cV>=94);tVit.push([`CA ${ca}cm`,caAl?'rt-w':'rt-ok']);}
+  setTags('rt-vit',tVit);
+
+  // Tags problemas
+  const pMap={'p-has':['HAS','rt-a'],'p-dm':['DM2','rt-a'],'p-tab':['Tabagismo','rt-w'],'p-ob':['Obesidade','rt-w'],'p-dhgna':['DHGNA','rt-w'],'p-drc':['DRC','rt-a'],'p-hipot':['Hipotireoidismo','rt-w'],'p-dislipi':['Dislipidemia','rt-w'],'p-ansi':['Ansiedade/Dep.','rt-w'],'p-asma':['Asma/DPOC','rt-w'],'p-icc':['ICC','rt-a'],'p-fa':['FA','rt-a'],'p-gota':['Gota','rt-w']};
+  const tProb=[];
+  Object.entries(pMap).forEach(([id,[l,c]])=>{if(chk(id))tProb.push([l,c]);});
+  const pout=v('p-out');if(pout)pout.split(',').forEach(o=>o.trim()&&tProb.push([o.trim(),'rt-a']));
+  setTags('rt-prob',tProb);
+
+  // Tags exames alterados
+  const tEx=[];
+  [[v('gj'),100,126,'Glicemia'],[v('hba1c'),5.7,6.5,'HbA1c'],[v('ct'),200,240,'CT'],[v('ldl'),130,160,'LDL'],[v('trig'),150,200,'TG'],[v('tgo'),40,80,'TGO'],[v('tgp'),40,80,'TGP'],[v('cr'),1.2,1.5,'Creat.'],[v('pcr'),5,10,'PCR'],[v('psa'),4,10,'PSA'],[v('antitpo'),35,100,'Anti-TPO'],[v('homa'),2.7,4.0,'HOMA'],[v('ur'),40,60,'Ureia'],[v('au'),6,7,'Ác.Úrico']].forEach(([val,w,c,lbl])=>{const x=parseFloat(val);if(!x)return;if(x>=c)tEx.push([`${lbl} ${val}`,'rt-a']);else if(x>=w)tEx.push([`${lbl} ${val}`,'rt-w']);});
+  [[v('hdl'),40,35,'HDL'],[v('b12'),200,140,'B12'],[v('sat'),20,15,'Sat.Fe']].forEach(([val,w,c,lbl])=>{const x=parseFloat(val);if(!x)return;if(x<c)tEx.push([`${lbl} ${val}`,'rt-a']);else if(x<w)tEx.push([`${lbl} ${val}`,'rt-w']);});
+  const vd=parseFloat(v('vitd'));if(vd){if(vd<20)tEx.push([`Vit.D ${vd}`,'rt-a']);else if(vd<30)tEx.push([`Vit.D ${vd}`,'rt-w']);}
+  const hbv=parseFloat(v('hb'));if(hbv){const fem=sexo==='Feminino';const lim=fem?12:13;const limC=fem?10:11;if(hbv<limC)tEx.push([`Hb ${hbv}`,'rt-a']);else if(hbv<lim)tEx.push([`Hb ${hbv}`,'rt-w']);}
+  const ferr=parseFloat(v('ferritina'));if(ferr){const lim=sexo==='Feminino'?13:30;if(ferr<lim)tEx.push([`Ferrit. ${ferr}`,'rt-a']);}
+  const tsh=parseFloat(v('tsh'));if(tsh&&(tsh<0.4||tsh>4.0))tEx.push([`TSH ${v('tsh')}`,tsh>10||tsh<0.1?'rt-a':'rt-w']);
+  if(v('eas')==='Alterado')tEx.push(['EAS Alt.','rt-w']);
+  if(v('psof')==='Positivo')tEx.push(['PSOF +','rt-a']);
+  setTags('rt-ex',tEx);
+
+  // Tags cálculos
+  const tCalc=[];
+  const fib4v=v('fib4-val');if(fib4v){const f=parseFloat(fib4v);tCalc.push([`FIB-4 ${fib4v}`,f<1.3?'rt-ok':f<=2.67?'rt-w':'rt-a']);}
+  const tfgv=document.getElementById('tfg-val').value;if(tfgv){const n=parseFloat(tfgv);tCalc.push([`TFG ${tfgv}`,n>=60?'rt-ok':n>=30?'rt-w':'rt-a']);}
+  const rcvv=v('rcv-val');if(rcvv){const n=parseFloat(rcvv);tCalc.push([`RCV ${rcvv}`,n<10?'rt-ok':n<20?'rt-w':'rt-a']);}
+  setTags('rt-calc',tCalc);
+
+  // Tags prevenções
+  const pvM={'pv-mamo':'Mamografia','pv-colpo':'Colposcopia','pv-colono':'Colonoscopia','pv-flu':'Influenza','pv-covid':'COVID-19','pv-psa':'PSA','pv-densi':'Densitometria'};
+  const tPrev=Object.entries(pvM).filter(([id])=>chk(id)).map(([,l])=>[l,'rt-ok']);
+  setTags('rt-prev',tPrev);
+
+  // ══ TEXTO RESUMO ══
+  const dtEx=v('dt-ex')||v('dt-c')||new Date().toLocaleDateString('pt-BR');
+  const L=[];
+
+  // LISTA DE PROBLEMAS
+  const probAtivos=Object.entries(pMap).filter(([id])=>chk(id)).map(([,d])=>d[0]);
+  const poutL=v('p-out');if(poutL)poutL.split(',').forEach(o=>o.trim()&&probAtivos.push(o.trim()));
+  L.push('LISTA DE PROBLEMAS');
+  if(probAtivos.length)probAtivos.forEach(p=>L.push('• '+p));
+  else L.push('• Sem problemas ativos');
+  L.push('');
+
+  // ALERGIAS
+  const alergia=v('alergia');
+  if(alergia){L.push('ALERGIAS');L.push('• '+alergia);L.push('');}
+
+  // PREVENÇÕES
+  if(tPrev.length){L.push('PREVENÇÕES');tPrev.forEach(([l])=>L.push('• '+l));L.push('');}
+
+  // RASTREAMENTOS CALCULADOS
+  const tfgT=document.getElementById('tfg-val').value;
+  const fib4T=v('fib4-val');
+  const rcvT=v('rcv-val');
+  if(tfgT||fib4T||rcvT){
+    L.push('RASTREAMENTOS');
+    if(rcvT){const n=parseFloat(rcvT);const r=n<10?'Baixo risco':n<20?'Risco intermediário':'Alto risco';L.push(`• RCV: ${rcvT} — ${r} (Framingham/SBC 2022)`);}
+    if(tfgT){const n=parseFloat(tfgT);const e=n>=90?'G1':n>=60?'G2':n>=45?'G3a':n>=30?'G3b':n>=15?'G4':'G5';L.push(`• TFG (CKD-EPI 2021): ${tfgT} — ${e} (${dtEx})`);}
+    if(fib4T){const n=parseFloat(fib4T);const r=n<1.3?'Baixo risco (F0-F2)':n<=2.67?'Risco indeterminado':'Alto risco (F3-F4)';L.push(`• FIB-4: ${fib4T} — ${r} (${dtEx})`);}
+    L.push('');
+  }
+
+  // BIOQUÍMICA — TODOS os campos
+  const bio=[['ct','CT'],['hdl','HDL'],['ldl','LDL'],['trig','Trig.'],['naohl','Não-HDL'],['cr','CR'],['ur','Ureia'],['au','Ác.Úrico'],['rac','R.A/C'],['tgo','TGO'],['tgp','TGP'],['ggt','GGT'],['fal','FA'],['bili','Bilirrubina'],['gj','Glic.J.'],['hba1c','HbA1c'],['ins','Insulina'],['homa','HOMA-IR'],['pepc','Pep-C'],['k','K'],['na2','Na'],['ca2','Ca'],['mg','Mg'],['fosforo','Fósforo']].filter(([id])=>v(id)).map(([id,l])=>`${l}: ${v(id)}`);
+  if(bio.length){L.push(`Bioquímica (${dtEx}):`);for(let i=0;i<bio.length;i+=4)L.push('• '+bio.slice(i,i+4).join(' ; '));}
+  const vits=[];if(v('vitd'))vits.push(`Vit. D: ${v('vitd')}`);if(v('b12'))vits.push(`Vit. B12: ${v('b12')}`);if(v('folato'))vits.push(`Folato: ${v('folato')}`);if(v('zinco'))vits.push(`Zinco: ${v('zinco')}`);if(vits.length)L.push('• '+vits.join(' ; '));
+  const hmg=[];if(v('hb'))hmg.push(`Hb: ${v('hb')}`);if(v('ht'))hmg.push(`Ht: ${v('ht')}`);if(v('vcm'))hmg.push(`VCM: ${v('vcm')}`);if(v('leuco'))hmg.push(`Leuco: ${v('leuco')}`);if(v('plaq'))hmg.push(`Plaq (mil): ${v('plaq')}`);if(hmg.length)L.push('• HMG: '+hmg.join(' ; '));
+  if(v('eas'))L.push(`• EAS: ${v('eas').toLowerCase()}`);
+  if(v('psof'))L.push(`• PSOF: ${v('psof')}`);
+  const tir=[];if(v('tsh'))tir.push(`TSH: ${v('tsh')}`);if(v('t4l'))tir.push(`T4L: ${v('t4l')}`);if(v('t3l'))tir.push(`T3L: ${v('t3l')}`);if(v('antitpo'))tir.push(`Anti-TPO: ${v('antitpo')}`);if(v('antitig'))tir.push(`Anti-TG: ${v('antitig')}`);if(tir.length)L.push('• '+tir.join(' ; '));
+  const fer=[];if(v('ferritina'))fer.push(`Ferritina: ${v('ferritina')}`);if(v('ferro'))fer.push(`Ferro: ${v('ferro')}`);if(v('transf'))fer.push(`Transferrina: ${v('transf')}`);if(v('sat'))fer.push(`Sat: ${v('sat')}%`);if(v('ctlf'))fer.push(`CTLF: ${v('ctlf')}`);if(fer.length)L.push('• '+fer.join(' ; '));
+  const inf=[];if(v('pcr'))inf.push(`PCR: ${v('pcr')}`);if(v('vhs'))inf.push(`VHS: ${v('vhs')}`);if(v('psa'))inf.push(`PSA: ${v('psa')}`);if(inf.length)L.push('• '+inf.join(' ; '));
+  const outEx=v('out-ex');if(outEx)outEx.split('\n').forEach(l=>l.trim()&&L.push('• '+l.trim()));
+  if(bio.length)L.push('');
+
+  // MUC
+  const muc=v('muc');if(muc){L.push('MUC');muc.split('\n').forEach(l=>l.trim()&&L.push('• '+l.trim()));L.push('');}
+
+  // SOAP
+  const ss=v('ss'),so=v('so'),sa=v('sa'),sp=v('sp');
+  if(ss||so||sa||sp){
+    L.push('DOENÇA ATUAL');
+    if(ss){L.push('• História Clínica');L.push('  '+ss.replace(/\n/g,'\n  '));}
+    if(so){L.push('• Exame Físico');L.push('  '+so.replace(/\n/g,'\n  '));}
+    if(sa){L.push('• Hipótese Diagnóstica');L.push('  '+sa);}
+    if(sp){L.push('• Plano');L.push('  '+sp.replace(/\n/g,'\n  '));}
+    L.push('');
+  }
+
+  // ANTECEDENTES — AGORA APARECE NO RESUMO
+  const antP=v('ant-p'),antF=v('ant-f'),antH=v('ant-h'),meds=v('meds');
+  if(antP||antF||antH||meds){
+    L.push('ANTECEDENTES');
+    if(antP)L.push('• Pessoais: '+antP.replace(/\n/g,' | '));
+    if(antF)L.push('• Familiares: '+antF.replace(/\n/g,' | '));
+    if(antH)L.push('• Hábitos: '+antH.replace(/\n/g,' | '));
+    if(meds){L.push('• Medicamentos em uso:');meds.split('\n').forEach(m=>m.trim()&&L.push('  - '+m.trim()));}
+    L.push('');
+  }
+
+  // PRESCRIÇÃO
+  const presc=v('presc');
+  if(presc){L.push('PRESCRIÇÃO');presc.split('\n').forEach(l=>l.trim()&&L.push(l.trim()));L.push('');}
+
+  // EXAMES SOLICITADOS
+  const exSol=v('ex-sol');
+  if(exSol){L.push('EXAMES SOLICITADOS');exSol.split('\n').forEach(l=>l.trim()&&L.push('• '+l.trim()));L.push('');}
+
+  // ORIENTAÇÕES
+  const orient=v('orient');
+  if(orient){L.push('ORIENTAÇÕES');orient.split('\n').forEach(l=>l.trim()&&L.push(l.trim()));}
+
+  const txt=L.join('\n').trim();
+  const el=document.getElementById('rtxt');
+  el.textContent=txt||'Preencha os dados para gerar o resumo automaticamente...';
+  el.style.color=txt?'var(--text)':'var(--text3)';
+}
+
+function copiarResumo(){
+  const el=document.getElementById('rtxt');
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    const btn=document.getElementById('btn-cp');
+    btn.classList.add('ok');btn.textContent='✓ Copiado!';
+    setTimeout(()=>{btn.classList.remove('ok');btn.textContent='📋 Copiar resumo';},2000);
+    toast('Copiado para área de transferência!',true);
+  }).catch(()=>toast('Erro ao copiar — selecione manualmente'));
+}
+function gerarProntuario(){
+  const resumo=document.getElementById('rtxt').innerText;
+  let h=`<p><strong>═══ PRONTUÁRIO DE CONSULTA ═══</strong><br>Data: ${v('dt-c')||new Date().toLocaleDateString('pt-BR')}</p>`;
+  h+=`<pre style="font-family:inherit;white-space:pre-wrap;font-size:11px;line-height:1.85">${resumo}</pre>`;
+  document.getElementById('editor').innerHTML=h;
+  toast('Prontuário gerado!',true);
+}
+function copiarEditor(){navigator.clipboard.writeText(document.getElementById('editor').innerText).then(()=>toast('Copiado!',true));}
+
+document.getElementById('dt-c').value=new Date().toISOString().split('T')[0];
+gen();
+</script>
+</body>
+</html>
